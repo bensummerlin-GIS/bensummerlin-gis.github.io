@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where Is the Chokepoint? | Ben Summerlin</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 40px 20px; color: #1f2933; line-height: 1.6; }
+    h1 { margin-bottom: 4px; }
+    .tagline { color: #52606d; margin-top: 0; }
+    .card { border: 1px solid #d9e2ec; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .card h3 { margin-top: 0; }
+    .note { background: #f0f4f8; border-left: 4px solid #829ab1; padding: 12px 16px; border-radius: 6px; }
+    .soon { color: #829ab1; font-style: italic; }
+    figure { margin: 20px 0; }
+    figure img { width: 100%; height: auto; border: 1px solid #d9e2ec; border-radius: 6px; }
+    figcaption { color: #52606d; font-size: 0.9em; margin-top: 6px; }
+    a { color: #0b6e99; }
+    footer { margin-top: 48px; color: #829ab1; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <p><a href="index.html">Back to portfolio</a></p>
+  <h1>Where Is the Chokepoint?</h1>
+  <p class="tagline">A network analysis of Southeast Asian sexual-exploitation flows | GEOG 594A GEOINT capstone, Penn State | August 2026</p>
+
+  <p class="note">About the data: this analysis uses the Counter-Trafficking Data Collaborative (CTDC) Global Synthetic Dataset. The records are synthetic, generated under differential privacy to protect victims and survivors while keeping population-level patterns. All results are at the country level. Because CTDC records only an origin and a destination for each case, network position here is a structural measure, not a claim about the route any victim travelled.</p>
+
+  <h2>The problem</h2>
+  <p>Anti-trafficking resources are limited, and the countries that could receive them are not interchangeable. Choosing where to focus enforcement, cooperation or funding is a geographic choice. This project asks which Southeast Asian country, if any, is the primary chokepoint in the regional sexual-exploitation network, and what explains its position.</p>
+  <p>The evidence is 1,271 cross-border records drawn from 268,515 records in the CTDC synthetic dataset, 2002 to 2024, for seven origin countries: Cambodia, Indonesia, Laos, Myanmar, the Philippines, Thailand and Vietnam.</p>
+
+  <h2>Main map</h2>
+  <figure>
+    <img src="images/sea-trafficking-flow-map.png" alt="World flow map of origin-destination corridors in the Southeast Asian sexual-exploitation network, colored by network community, with line thickness showing record volume.">
+    <figcaption>Observed origin-destination corridors (158 corridors, 1,271 cross-border records). Lines are straight to avoid implying a specific travel route. Thickness shows corridor record volume, and color shows network community: Cambodia, Vietnam and Myanmar in blue, Thailand orange, the Philippines green, Indonesia and Laos vermillion. Source: Counter-Trafficking Data Collaborative (CTDC), Global Synthetic Dataset v2026. Basemap: Esri, Garmin, U.S. CIA World Factbook, National Geographic Society.</figcaption>
+  </figure>
+
+  <h2>Method in plain terms</h2>
+  <p>This is a mixed-method analysis. Code measures the structure of the network, and structured analysis decides what that structure means.</p>
+  <ol>
+    <li><strong>Build the network.</strong> Each country is a node, and each origin-to-destination pair is a corridor weighted by its number of records. Domestic cases, where a victim never crossed a border, are taken out of the network and reported separately.</li>
+    <li><strong>Find the most central countries.</strong> Betweenness centrality counts how often a country sits on the shortest paths between other countries, which is a chokepoint stated in math. I computed it with and without corridor volume.</li>
+    <li><strong>Stress-test the result.</strong> I removed each origin country in turn to see how much the network breaks apart, and ran a cut-vertex test to find the countries whose removal splits the network into pieces.</li>
+    <li><strong>Find communities.</strong> Louvain community detection groups countries that are more tightly linked to each other than to the rest of the network.</li>
+    <li><strong>Test competing explanations.</strong> Five hypotheses, one per candidate country, were checked against political, economic, social and infrastructure evidence using Analysis of Competing Hypotheses, which looks for evidence that rules a hypothesis out rather than evidence that fits it.</li>
+  </ol>
+  <figure>
+    <img src="images/sea-trafficking-network-graph.png" alt="Node-link network graph with node size showing weighted betweenness and color showing community membership for the seven origin countries, the United States and China.">
+    <figcaption>Node-link view of the network (71 countries, 158 corridors). Node size shows weighted betweenness, and color shows community membership. Position on the page is not geographic.</figcaption>
+  </figure>
+
+  <h2>What I found</h2>
+  <ul>
+    <li><strong>No single dominant chokepoint.</strong> Cambodia (weighted betweenness 0.1716) and Thailand (0.1653) are co-central. Indonesia, Vietnam and the Philippines complete a leading five, and the five are the same with or without corridor volume.</li>
+    <li><strong>Three methods agree.</strong> Betweenness, node removal and the cut-vertex test all single out the same five countries.</li>
+    <li><strong>Thailand is the best-supported transit candidate.</strong> It has no inconsistencies in the hypothesis matrix, and none of its records with a recorded destination are domestic.</li>
+    <li><strong>Most Cambodian trafficking never crosses a border.</strong> 678 Cambodian records are domestic, 90.6% of the 748 with a recorded destination. Cambodia holds the strongest structural position, but most of its recorded harm sits outside the reach of cross-border interdiction.</li>
+    <li><strong>Volume is not position.</strong> Vietnam has the most records of any origin (518) but ranks fifth on unweighted betweenness. The United States is the largest single destination (348 records) with a betweenness of 0.0098.</li>
+    <li><strong>The practical takeaway.</strong> The country where interdiction would have the most structural effect is not the country carrying the most harm. Interdiction and prevention reach different populations. The network can narrow the field, but it cannot make that choice for a decision-maker.</li>
+  </ul>
+
+  <h2>Code</h2>
+  <p>Python notebooks (pandas, NetworkX, GeoPandas) that rebuild the network and the figures: <a href="https://github.com/bensummerlin-GIS/trafficking-network-analysis">trafficking-network-analysis on GitHub</a>. The raw CTDC data is not included. The repository README explains where to download it.</p>
+
+  <p style="font-size:0.9em;color:#52606d;">Source: Counter-Trafficking Data Collaborative (CTDC), May 2026. <a href="https://www.ctdatacollaborative.org/page/global-synthetic-dataset">ctdatacollaborative.org</a>. Used for non-commercial research under the CTDC terms of use.</p>
+  <p style="font-size:0.9em;color:#52606d;">Use of AI: An AI assistant helped with analysis code, figures, drafting and editing. All analytic decisions, interpretations and conclusions are my own, and I reviewed and verified all output.</p>
+
+  <footer>Last updated November 2026</footer>
+</body>
+</html>

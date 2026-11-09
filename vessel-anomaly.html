@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galapagos Marine Monitoring: system design | Ben Summerlin</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 40px 20px; color: #1f2933; line-height: 1.6; }
+    h1 { margin-bottom: 4px; }
+    .tagline { color: #52606d; margin-top: 0; }
+    .card { border: 1px solid #d9e2ec; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .card h3 { margin-top: 0; }
+    .note { background: #f0f4f8; border-left: 4px solid #829ab1; padding: 12px 16px; border-radius: 6px; }
+    .soon { color: #829ab1; font-style: italic; }
+    figure { margin: 20px 0; }
+    figure img { width: 100%; height: auto; border: 1px solid #d9e2ec; border-radius: 6px; }
+    figcaption { color: #52606d; font-size: 0.9em; margin-top: 6px; }
+    a { color: #0b6e99; }
+    footer { margin-top: 48px; color: #829ab1; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <p><a href="index.html">Back to portfolio</a></p>
+  <h1>Galapagos Marine Monitoring: system design</h1>
+  <p class="tagline">A GIS system design proposal for routing illegal fishing and forced labor alerts to the authority that can act | GEOG 583: Geospatial Analysis and Design, Penn State | October 2026</p>
+
+  <p class="note">This is a class project. It is written as a funding proposal addressed to the Ecuadorian Navy. It was written for the course, not for or with the Navy or any Ecuadorian agency, and nothing described here has been built.</p>
+
+  <h2>The problem</h2>
+  <p>Illegal, unreported and unregulated fishing is a recurring threat inside the Galapagos Marine Reserve and Ecuador's exclusive economic zone (EEZ). Vessels can switch off their AIS (Automatic Identification System) transponders to avoid being tracked, which is called "going dark." Published research cited in the proposal found that between 14 and 26% of more than 16,000 fishing vessels were at high risk for forced labor, and Ecuador has faced a European Commission yellow card warning over illegal fishing since 2019.</p>
+  <p>Detecting suspicious vessels is not the missing piece. Global Fishing Watch and other platforms already do that. What is missing is a system that sends each alert to the right authority. Four groups work these waters with different legal powers: Galapagos National Park rangers, Ecuadorian Navy officers, port inspectors, and analysts at non-governmental organizations (NGOs). No single system decides which of them should receive a given alert.</p>
+
+  <h2>Main map</h2>
+  <figure>
+    <img src="images/galapagos-vessel-activity-map.png" alt="Map of vessel activity around the Galapagos Islands showing AIS fishing effort, vessel presence, night light detections and radar vessel detections, with EEZ and marine protected area boundaries.">
+    <figcaption>Vessel activity around the Galapagos Islands, June 25 to September 25, 2026: AIS fishing effort and vessel presence, night light detections, and radar vessel detections, with EEZ boundaries and marine protected areas. Map exported from <a href="https://globalfishingwatch.org">Global Fishing Watch</a> on September 28, 2026. The Global Fishing Watch map legend labels the night light layer "Skylight." The proposed system itself specifies the VIIRS Boat Detection product from the Earth Observation Group at the Colorado School of Mines as its night-lights feed.</figcaption>
+  </figure>
+  <p>This map shows the kinds of data the system would draw on. The design pairs these layers so that a gap in a vessel's tracking can be checked against an independent detection at the same place and time.</p>
+
+  <h2>Method in plain terms</h2>
+  <p>This is a system design proposal, so the work is design rather than data analysis. I worked through it in these steps:</p>
+  <ol>
+    <li><strong>User analysis.</strong> I described the four users as roles defined by what they are legally allowed to do: a ranger who observes but cannot intercept, a Navy officer who decides where a small patrol fleet goes, a port inspector who checks vessels at the dock, and an NGO analyst who documents patterns but has no enforcement power.</li>
+    <li><strong>Needs assessment.</strong> I wrote a 10-question survey, paired with follow-up interviews, to test the design's assumptions with real users before anything is built.</li>
+    <li><strong>Comparing software options.</strong> I compared three complete ways to build the system: Esri's ArcGIS products, a free and open source stack (QField, PostgreSQL with PostGIS, GeoServer, OpenLayers), and a custom build (a custom web app, Amazon Web Services, MapLibre GL JS). I chose ArcGIS because its pieces already connect to each other and give each role its own view of one shared record.</li>
+    <li><strong>Design.</strong> I produced wireframes for all four roles, a system architecture diagram, a nine-table database design, a use case diagram, a cost/benefit analysis and a project schedule.</li>
+  </ol>
+  <p>The core logic works like this. When a vessel stops broadcasting AIS, that gap is only a lead. It becomes an alert only when radar or night-lights data places a hull at that position. Corroborated alerts are ranked by where the event happened, how long the vessel stayed dark, and whether it has a confirmed prior violation. Each alert carries two separate indicators: unauthorized fishing, and crew isolation, which is associated with forced labor. A person reviews every alert and sees the evidence behind it before anything is acted on.</p>
+  <figure>
+    <img src="images/system-architecture.png" alt="Four-layer system architecture diagram showing external data sources, the shared database, server services and the four user applications.">
+    <figcaption>System architecture: three external data sources, the shared vessel record, three server components, and the four applications people use, with arrows showing what flows each way.</figcaption>
+  </figure>
+
+  <h2>What I found</h2>
+  <ul>
+    <li><strong>The gap is routing, not detection.</strong> Existing platforms already detect suspicious vessels. This design adds the layer that decides which authority receives each alert.</li>
+    <li><strong>One alert can mean two different things.</strong> Ecuador has ratified the Port State Measures Agreement, which covers illegal fishing, but not the International Labour Organization Work in Fishing Convention (C188), which protects crews. So a port inspector can act on an unauthorized fishing flag at the dock, but a crew-isolation flag has to be reported outward to the vessel's flag state or an advocacy body.</li>
+    <li><strong>No option delivers alerts out of the box.</strong> None of the three software options includes alert delivery in its core parts. The ArcGIS design adds ArcGIS Velocity to close that gap.</li>
+    <li><strong>Offline is a hard limit.</strong> No option can push an alert to a ranger with no signal. The design caches alert zones before a patrol and shows how long each held alert waited.</li>
+    <li><strong>Cost is small compared to what is at stake.</strong> The system is estimated at about $234,700 a year plus $100,400 one time. That yearly cost is under 0.05% of the $509.1 million that tourism, fishing and shipping generated in the Galapagos EEZ in 2018. As an illustration, not a forecast, protecting 1% of legal fishing value, about $1.1 million, would cover the yearly cost almost five times.</li>
+  </ul>
+
+  <h2>Code</h2>
+  <p class="soon">Not listed yet. This project is a design proposal, so there is no analysis code.</p>
+
+  <h2>Data credits</h2>
+  <ul>
+    <li>Vessel activity, night light and radar detection layers: <a href="https://globalfishingwatch.org">Global Fishing Watch</a>, used for non-commercial purposes.</li>
+    <li>Exclusive economic zone boundaries: Flanders Marine Institute (2023), Maritime Boundaries Geodatabase, version 12, <a href="https://doi.org/10.14284/632">Marine Regions</a>, CC BY 4.0.</li>
+    <li>Marine protected area boundaries: UNEP-WCMC and IUCN (2026), <a href="https://www.protectedplanet.net">Protected Planet: The World Database on Protected and Conserved Areas</a>, September 2026 version.</li>
+  </ul>
+
+  <footer>Last updated November 2026</footer>
+</body>
+</html>
