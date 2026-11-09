@@ -51,14 +51,39 @@
   </figure>
 
   <h2>What I found</h2>
-  <ul>
-    <li><strong>No single dominant chokepoint.</strong> Cambodia (weighted betweenness 0.1716) and Thailand (0.1653) are co-central. Indonesia, Vietnam and the Philippines complete a leading five, and the five are the same with or without corridor volume.</li>
-    <li><strong>Three methods agree.</strong> Betweenness, node removal and the cut-vertex test all single out the same five countries.</li>
-    <li><strong>Thailand is the best-supported transit candidate.</strong> It has no inconsistencies in the hypothesis matrix, and none of its records with a recorded destination are domestic.</li>
-    <li><strong>Most Cambodian trafficking never crosses a border.</strong> 678 Cambodian records are domestic, 90.6% of the 748 with a recorded destination. Cambodia holds the strongest structural position, but most of its recorded harm sits outside the reach of cross-border interdiction.</li>
-    <li><strong>Volume is not position.</strong> Vietnam has the most records of any origin (518) but ranks fifth on unweighted betweenness. The United States is the largest single destination (348 records) with a betweenness of 0.0098.</li>
-    <li><strong>The practical takeaway.</strong> The country where interdiction would have the most structural effect is not the country carrying the most harm. Interdiction and prevention reach different populations. The network can narrow the field, but it cannot make that choice for a decision-maker.</li>
-  </ul>
+  <p><strong>No single dominant chokepoint.</strong> Cambodia (weighted betweenness 0.1716) and Thailand (0.1653) are co-central. Indonesia, Vietnam and the Philippines complete a leading five, and the five are the same with or without corridor volume.</p>
+  <figure>
+    <img src="images/weighted-betweenness-map.png" alt="Choropleth map of mainland and maritime Southeast Asia shaded by weighted betweenness centrality, with Thailand and Cambodia in the darkest class, Vietnam and Indonesia next, the Philippines and Myanmar lighter, and Laos lightest.">
+    <figcaption>Weighted betweenness centrality by country (71 countries, 158 corridors, 1,271 cross-border records). Cambodia (0.1716) and Thailand (0.1653) fall in the same top class. Laos (0.0000) is classed separately. Values show structural position in the observed network, not physical routing. Source: CTDC Global Synthetic Dataset v2026.</figcaption>
+  </figure>
+
+  <p><strong>Three methods agree.</strong> Betweenness, a node-removal simulation and a cut-vertex test single out the same five countries. Exactly five countries split the network into pieces if removed: Cambodia, Indonesia, the Philippines, Thailand and Vietnam.</p>
+
+  <p><strong>Thailand is the best-supported transit candidate.</strong> It has no inconsistencies in the hypothesis matrix, and none of its records with a recorded destination are domestic.</p>
+
+  <p><strong>Most Cambodian trafficking never crosses a border.</strong> 678 Cambodian records are domestic, 90.6% of the 748 with a recorded destination. Cambodia holds the strongest structural position, but most of its recorded harm sits outside the reach of cross-border interdiction.</p>
+  <figure>
+    <img src="images/origin-destination-matrix.png" alt="Heat map matrix of record counts with seven Southeast Asian origin countries as rows and eleven destination categories as columns. The Cambodia-to-Cambodia diagonal cell, 678, is by far the darkest. Other large cells include Philippines to United States, 184, and Vietnam to China, 162.">
+    <figcaption>Record counts from each origin country (rows) to each destination (columns). Bold-bordered diagonal cells are domestic cases, where origin and destination are the same country. "All other" combines the 42 destination countries outside the ten named columns. Color uses a square-root scale so smaller corridors stay visible. Source: CTDC Global Synthetic Dataset v2026.</figcaption>
+  </figure>
+
+  <p><strong>Volume is not position.</strong> Vietnam has the most records of any origin (518) but ranks fifth on unweighted betweenness. Cambodia is the reverse, fourth on volume and first on position. The United States is the largest single destination (348 records) with a betweenness of 0.0098. This is why the analysis ranks countries by network position rather than by case counts.</p>
+  <figure>
+    <img src="images/volume-vs-position-rank.png" alt="Slope chart linking each of seven origin countries' rank by record volume to its rank by unweighted betweenness. Vietnam drops from rank 1 to rank 5, and Cambodia rises from rank 4 to rank 1.">
+    <figcaption>Rank by record volume against rank by unweighted betweenness for the seven origin countries (1 = highest). Vietnam ranks first on volume but fifth on structural position. Cambodia shows the reverse, fourth on volume and first on position. Source: CTDC Global Synthetic Dataset v2026.</figcaption>
+  </figure>
+
+  <p><strong>The data has limits, and they are uneven.</strong> Destination is unrecorded for 22.1% of Cambodian records but for 42.9% to 53.8% of records from the other six origins, so every percentage rests on a differently sized base depending on the country.</p>
+  <figure>
+    <img src="images/missing-destination-rate.png" alt="Horizontal bar chart of the share of origin records with no recorded destination: Myanmar 53.8%, Indonesia 53.3%, Philippines 53.2%, Thailand 50.7%, Vietnam 46.1%, Laos 42.9%, Cambodia 22.1%.">
+    <figcaption>Share of each origin country's records with no recorded destination, from 22.1% for Cambodia to 53.8% for Myanmar. Source: CTDC Global Synthetic Dataset v2026.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/demographic-composition.png" alt="Two stacked bar charts showing gender and age composition for the seven origin countries as a percentage of each country's total records, with missing values shown in gray. Myanmar and Laos are mostly gray.">
+    <figcaption>Gender and age composition by origin country, as a percentage of each country's total records, with missing values shown as their own category so each bar sums to 100%. Myanmar and Laos are mostly missing data (96.2% and 85.7% gender-missing) and show how scarce the data is, not demographic estimates. Source: CTDC Global Synthetic Dataset v2026.</figcaption>
+  </figure>
+
+  <p><strong>The practical takeaway.</strong> The country where interdiction would have the most structural effect is not the country carrying the most harm. Interdiction and prevention reach different populations. The network can narrow the field, but it cannot make that choice for a decision-maker.</p>
 
   <h2>Code</h2>
   <p>Python notebooks (pandas, NetworkX, GeoPandas) that rebuild the network and the figures: <a href="https://github.com/bensummerlin-GIS/trafficking-network-analysis">trafficking-network-analysis on GitHub</a>. The raw CTDC data is not included. The repository README explains where to download it.</p>
