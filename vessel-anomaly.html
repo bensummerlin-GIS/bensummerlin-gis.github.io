@@ -13,10 +13,16 @@
     .note { background: #f0f4f8; border-left: 4px solid #829ab1; padding: 12px 16px; border-radius: 6px; }
     .soon { color: #829ab1; font-style: italic; }
     figure { margin: 20px 0; }
-    figure img { width: 100%; height: auto; border: 1px solid #d9e2ec; border-radius: 6px; }
+    figure img { width: 100%; height: auto; border: 1px solid #d9e2ec; border-radius: 6px; background: #fff; }
     figcaption { color: #52606d; font-size: 0.9em; margin-top: 6px; }
     a { color: #0b6e99; }
     footer { margin-top: 48px; color: #829ab1; font-size: 0.9em; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85em; line-height: 1.4; }
+    th, td { border: 1px solid #d9e2ec; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f0f4f8; font-weight: 600; }
+    tfoot td { font-weight: 600; background: #f8fafc; }
+    .table-caption { color: #52606d; font-size: 0.9em; margin: 0 0 24px; }
   </style>
 </head>
 <body>
@@ -46,10 +52,44 @@
     <li><strong>Design.</strong> I produced wireframes for all four roles, a system architecture diagram, a nine-table database design, a use case diagram, a cost/benefit analysis and a project schedule.</li>
   </ol>
   <p>The core logic works like this. When a vessel stops broadcasting AIS, that gap is only a lead. It becomes an alert only when radar or night-lights data places a hull at that position. Corroborated alerts are ranked by where the event happened, how long the vessel stayed dark, and whether it has a confirmed prior violation. Each alert carries two separate indicators: unauthorized fishing, and crew isolation, which is associated with forced labor. A person reviews every alert and sees the evidence behind it before anything is acted on.</p>
+
+  <h2>Who would use it</h2>
+  <p>The four roles do not all have the same legal authority, so they should not all see the same screen. The diagram below shows the tasks each role would perform and how those tasks meet at one shared vessel record. A fifth figure, the Navy patrol crew, receives a dispatched task from the officer rather than working the queue itself.</p>
+  <figure>
+    <img src="images/use-case-diagram.png" alt="Use case diagram of Galapagos Marine Monitoring, showing four user roles plus a Navy patrol crew, their tasks, and how those tasks connect to a shared vessel record.">
+    <figcaption>Use case diagram for the proposed system, showing the four user roles plus a Navy patrol crew, their tasks, and how those tasks meet at one shared vessel record in ArcGIS Enterprise. This is a design diagram for a class proposal, not a description of a system that has been built.</figcaption>
+  </figure>
+
+  <h2>System architecture</h2>
+  <p>The proposed system has four layers: three external data sources, the shared vessel record, the server components that publish and deliver that record, and the four applications people would use. ArcGIS Velocity is added to detect tracking gaps and deliver alerts, because none of the software options I compared includes alert delivery in its core parts.</p>
   <figure>
     <img src="images/system-architecture.png" alt="Four-layer system architecture diagram showing external data sources, the shared database, server services and the four user applications.">
-    <figcaption>System architecture: three external data sources, the shared vessel record, three server components, and the four applications people use, with arrows showing what flows each way.</figcaption>
+    <figcaption>Proposed system architecture, drawn in PenPot: three external data sources, the shared vessel record, three server components, and the four applications people use, with arrows showing what flows each way. The dashed alert arrow into Field Maps is the Navy patrol crew's dispatched task. This is a class design, not a running system.</figcaption>
   </figure>
+
+  <h2>The shared vessel record</h2>
+  <p>Everything the system would know about a vessel lives in one nine-table database: who the vessel is, each time it stopped broadcasting and what confirmed it, the resulting alert and where it was routed, and its past violations, inspections and sightings. The schematic shows the fields and how the tables connect. It has not been built.</p>
+  <figure>
+    <img src="images/database-schematic.png" alt="Database schematic showing nine tables for vessels, dark events, detections, alerts, sightings, inspections, violations, user accounts and agencies, with arrows linking primary and foreign keys.">
+    <figcaption>Proposed database schematic, built in DrawSQL, for the nine-table shared vessel record. It shows each table's fields and data types, and arrows from each primary key to the foreign key that references it. This is a class design, not a database that has been implemented.</figcaption>
+  </figure>
+
+  <h2>How alerts would be reviewed and acted on</h2>
+  <p>The two wireframes below show the Navy officer's queue and the evidence screen behind a single alert. Vessel names, times and scores in these mockups are illustrative placeholders, not real detections.</p>
+  <figure>
+    <img src="images/alert-queue.png" alt="Annotated wireframe of a Navy officer's ranked alert queue in ArcGIS Experience Builder, with a list of corroborated events and a map of the same rows.">
+    <figcaption>Wireframe of the ranked alert queue a Navy officer would work from, listing corroborated events by priority, jurisdiction and dark duration next to a map of the same rows. The annotations explain the design, including that only corroborated events are ranked. This is a design mockup, not a screenshot of a working application.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/alert-detail.png" alt="Annotated wireframe of one alert opened from the queue, showing corroboration evidence next to the priority score and controls to task a patrol or mark the alert reviewed with no action.">
+    <figcaption>Wireframe of one alert opened from the queue, with the corroboration and evidence shown next to the priority score, and two decisions a person can make: task a patrol, or mark the alert reviewed with no action. The system ranks and shows evidence; a person makes the call. This is a design mockup, not a screenshot of a working application.</figcaption>
+  </figure>
+  <p>At the dock, a port inspector would see a different form. Ecuador has ratified the Port State Measures Agreement, which covers illegal fishing, but not the International Labour Organization Work in Fishing Convention (C188), which protects crews. So the checklist changes its questions depending on which indicator triggered the alert, and a crew-isolation finding would be recorded and reported outward rather than enforced at the dock.</p>
+  <figure>
+    <img src="images/dock-checklist.png" alt="Annotated wireframe of a port inspector's dockside checklist in ArcGIS Survey123, shown in a tablet view, with separate question branches for unauthorized fishing and crew isolation.">
+    <figcaption>Wireframe of the dockside checklist a port inspector would fill in at the point of inspection, shown here in a tablet view. The form branches to different questions depending on which of two indicators triggered it: unauthorized fishing, which Ecuador can enforce at the dock under the Port State Measures Agreement, or crew isolation, which would be recorded and reported outward because Ecuador has not ratified the International Labour Organization Work in Fishing Convention (C188). The "Unauthorized fishing" trigger shown here is an illustrative placeholder, not a real inspection. This is a design mockup, not a screenshot of a working application.</figcaption>
+  </figure>
+  <p>I also designed wireframes for the park ranger and the NGO analyst. Those are not shown here, so this page stays focused on routing, review and the legal split between the two indicators rather than every screen.</p>
 
   <h2>What I found</h2>
   <ul>
@@ -59,6 +99,77 @@
     <li><strong>Offline is a hard limit.</strong> No option can push an alert to a ranger with no signal. The design caches alert zones before a patrol and shows how long each held alert waited.</li>
     <li><strong>Cost is small compared to what is at stake.</strong> The system is estimated at about $234,700 a year plus $100,400 one time. That yearly cost is under 0.05% of the $509.1 million that tourism, fishing and shipping generated in the Galapagos EEZ in 2018. As an illustration, not a forecast, protecting 1% of legal fishing value, about $1.1 million, would cover the yearly cost almost five times.</li>
   </ul>
+
+  <h2>How the software options compared</h2>
+  <p>I compared three complete stacks against criteria taken from the work itself: offline field use, role-based views over one record, joining the tracking and night-lights feeds, showing evidence next to the score, and cost to acquire, build and maintain. I chose the ArcGIS option because four agencies would read one record and act on different parts of it, and because a shared platform answers that directly. The table below is from the class proposal.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Criterion</th><th>Proprietary (chosen)</th><th>Open source</th><th>Customizable</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Offline field capture that reconciles on return</td><td>Built in (Field Maps)</td><td>Built in (QField)</td><td>Built from scratch</td></tr>
+        <tr><td>Role-based views over one shared record</td><td>Built in (Experience Builder)</td><td>Coded per role</td><td>Coded per role</td></tr>
+        <tr><td>Joining the two data feeds</td><td>Custom script required</td><td>Custom script required</td><td>Custom script, expected up front</td></tr>
+        <tr><td>Scheduled pull of the night-lights data</td><td>Added licensed Esri component</td><td>Outside script run on a timer</td><td>Built into the database</td></tr>
+        <tr><td>Evidence shown alongside the score</td><td>Built in</td><td>Coded</td><td>Coded</td></tr>
+        <tr><td>Alert delivery to a connected user</td><td>Not built in; ArcGIS Velocity added to the request</td><td>None built in; hosted notification service or custom code</td><td>None built in; hosted notification service or custom code</td></tr>
+        <tr><td>Cost to acquire</td><td>Three separate licenses: Enterprise, Notebook Server, real-time alerting</td><td>None</td><td>No license; recurring usage billing</td></tr>
+        <tr><td>Cost to build</td><td>Low (configuration)</td><td>Moderate (coding plus configuration)</td><td>High (everything coded)</td></tr>
+        <tr><td>Cost to maintain and staff</td><td>Self-hosted server, dedicated staff</td><td>Self-hosted server, dedicated staff</td><td>Managed cloud, no server staff</td></tr>
+        <tr><td>Vendor lock-in</td><td>Structural (proprietary format across all client apps)</td><td>Low (open standards)</td><td>Low (custom code, open underlying engine)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-caption">The three software options compared against criteria drawn from the system's design requirements. This comparison is part of the class proposal. It is not a vendor evaluation performed for a live procurement.</p>
+
+  <h2>Estimated cost and what it is set against</h2>
+  <p>Esri does not publish prices for most of its products, so the table mixes published price lists with estimates, and each row says which. The Esri list prices come from a 2019 state contract, and the Velocity figure is one agency's quote. Several costs would still need a current quote before any real budget could be set. These figures are from the class proposal, not from a vendor quote received for a live build.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Item</th><th>Cost</th><th>One-time or yearly</th><th>Basis</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Three server machines</td><td>$30,000</td><td>One-time</td><td>Estimate (about $10,000 each)</td></tr>
+        <tr><td>20 phones and 4 tablets</td><td>$12,400</td><td>One-time</td><td>Estimate (20 field users and 4 port inspectors at first rollout)</td></tr>
+        <tr><td>Contractor setup</td><td>$40,000</td><td>One-time</td><td>Estimate (400 hours at $100 an hour)</td></tr>
+        <tr><td>ArcGIS Notebook Server</td><td>$18,000</td><td>One-time</td><td>Esri (2019) price list, State of Idaho (perpetual license, up to four cores)</td></tr>
+        <tr><td>ArcGIS Enterprise Standard</td><td>$10,800</td><td>Yearly</td><td>Esri (2019) price list, State of Idaho (365-day term, up to four cores)</td></tr>
+        <tr><td>ArcGIS Velocity</td><td>$90,000</td><td>Yearly</td><td>One agency's quote (Stoelb, 2024)</td></tr>
+        <tr><td>ArcGIS Online and user licenses</td><td>$15,000</td><td>Yearly</td><td>Estimate (Esri does not publish user prices)</td></tr>
+        <tr><td>Live satellite ship tracking</td><td>$100,000</td><td>Yearly</td><td>Estimate (Canada paid CA$1.41 million for one year of global data; Spire Global, 2024)</td></tr>
+        <tr><td>Near real-time night-lights</td><td>$10,000</td><td>Yearly</td><td>Estimate (price not published; Earth Observation Group, n.d.)</td></tr>
+        <tr><td>System administrator</td><td>$8,892</td><td>Yearly</td><td>Paylab (n.d.), Ecuador, $741 a month (fewer than 20 respondents)</td></tr>
+        <tr><td>Global Fishing Watch data and boundaries</td><td>$0</td><td>Yearly</td><td>Free datasets</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Total</td><td colspan="3">$100,400 one-time; about $234,700 yearly</td></tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="table-caption">Estimated costs of creating, implementing and maintaining the proposed system, from the class proposal. Several rows are estimates.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>What the figures are set against</th><th>Amount</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Tourism, fishing and shipping in the Galapagos exclusive economic zone, 2018</td><td>$509.1 million generated for Ecuador's economy</td><td>"Galapagos aporta 509 millones" (2025), reporting a study by Ecuador's Ministry of Environment, the Charles Darwin Foundation, the Galapagos National Park Directorate and the Central Bank</td></tr>
+        <tr><td>Legal fishing</td><td>Over $110 million a year</td><td>Charles Darwin Foundation (2025)</td></tr>
+        <tr><td>Tourism, 2018</td><td>Over $275 million</td><td>Charles Darwin Foundation (2025)</td></tr>
+        <tr><td>Net benefit, illustration: protecting 1% of legal fishing value minus the yearly cost</td><td>About $865,000 a year (about $1.1 million minus about $234,700)</td><td>Calculated from the cost table and Charles Darwin Foundation (2025). This is an illustration, not a forecast.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-caption">Published economic figures the proposal sets the yearly cost against. The 1% comparison is an illustration, not a forecast of what the system would protect.</p>
+
+  <h2>Proposed schedule</h2>
+  <p>The schedule starts if funding were approved in January 2027. Setup comes first, then build, evaluation, a proposed full launch in October 2027, and maintenance. These dates are part of the class proposal. The system has not been funded or built.</p>
+  <figure>
+    <img src="images/project-schedule.png" alt="Gantt chart of a proposed 2027 project schedule from funding approval through setup, build, evaluation, full launch and maintenance.">
+    <figcaption>Proposed project schedule for 2027, from funding approval through full launch and maintenance. The dates assume funding is approved in January 2027. This is a class design proposal, not a funded project plan.</figcaption>
+  </figure>
 
   <h2>Code</h2>
   <p class="soon">Not listed yet. This project is a design proposal, so there is no analysis code.</p>
